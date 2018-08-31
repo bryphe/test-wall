@@ -1,5 +1,5 @@
 {
-  "hash": "ef39b6513feabd57711cb76224e4eb58",
+  "hash": "c5efbd3ff0e666f1ff3744adfe5a1050",
   "root": "test-wall@path:.",
   "node": {
     "yarn-pkg-config@github:esy-ocaml/yarn-pkg-config#d488cd9321cd5036bd36ec96744ce78c5d45fc49": {
@@ -25,7 +25,7 @@
       "dependencies": [
         "@esy-ocaml/merlin@3.0.5005", "@esy-ocaml/reason@3.3.3",
         "@opam/dune@opam:1.1.1", "@opam/lambda-term@opam:1.13",
-        "@opam/lwt@opam:4.1.0",
+        "@opam/lwt@opam:4.1.0", "@opam/menhir@opam:20170712",
         "@opam/wall@github:let-def/wall#8b47b5ce898f6b35d6cbf92aa12baadd52f05350",
         "ocaml@4.6.5", "refmterr@3.1.7"
       ]
@@ -499,21 +499,39 @@
         "@opam/ocamlfind@opam:1.8.0"
       ]
     },
-    "@opam/menhir@opam:20170509": {
+    "@opam/menhir@opam:20170712": {
       "record": {
         "name": "@opam/menhir",
-        "version": "opam:20170509",
+        "version": "opam:20170712",
         "source": [
-          "archive:https://opam.ocaml.org/archives/menhir.20170509+opam.tar.gz#md5:0ad65a00cb3c02587fba9048af8d84b9",
-          "archive:http://gallium.inria.fr/~fpottier/menhir/menhir-20170509.tar.gz#md5:b8ba18b5abda831cf41cd4fa65f4c51b"
+          "archive:https://opam.ocaml.org/archives/menhir.20170712+opam.tar.gz#md5:18aaf814e51aeb4fbfd8b7c1fb7ffbba",
+          "archive:http://gallium.inria.fr/~fpottier/menhir/menhir-20170712.tar.gz#md5:85a5c2aef1d3f2224dab7c53d79892e5"
         ],
-        "files": [],
+        "files": [
+          {
+            "name": "_esy/menhir-20170712.patch",
+            "content":
+              "--- ./Makefile\n+++ ./Makefile\n@@ -60,10 +60,11 @@\n # If the compiler is MSVC, then the name of the executable file ends in .exe,\n # and object file names end in .obj instead of .o.\n \n-ifneq (,$(shell ocamlc -config | grep -E \"ccomp_type: msvc\"))\n+OS_TYPE:=$(shell ocamlc -config | tr -d '\\15' | awk '/^os_type:/ {print $$2}')\n+ifeq ($(OS_TYPE),$(filter $(OS_TYPE),Win32 Cygwin))\n   MENHIREXE    := menhir.exe\n-  OBJ          := obj\n-# LIBSUFFIX    := lib\n+  OBJ          := $(shell ocamlc -config | tr -d '\\15' | awk '/^ext_obj:/ {print $$2}' | tr -d '.')\n+# LIBSUFFIX    := $(shell ocamlc -config | tr -d '\\15' | awk '/^ext_lib:/ {print $$2}' | tr -d '.')\n else\n   MENHIREXE    := menhir\n   OBJ          := o\n@@ -85,8 +86,8 @@\n # performed if \"os_type\" is \"Win32\" or \"Win64\", and must not be performed if\n # \"os_type\" is \"Cygwin\" or \"Unix\".\n \n-ifneq (,$(shell ocamlc -config | grep -E \"os_type: (Win32|Win64)\"))\n-installation_libdir := $(shell cygpath -m $(libdir))\n+ifeq ($(OS_TYPE),Win32)\n+installation_libdir := $(shell cygpath -m $(libdir) || echo $(libdir))\n else\n installation_libdir := $(libdir)\n endif\n--- ./src/cmly_write.ml\n+++ ./src/cmly_write.ml\n@@ -168,6 +168,6 @@\n   output_value oc (t : grammar)\n \n let write filename =\n-  let oc = open_out filename in\n+  let oc = open_out_bin filename in\n   write oc (encode());\n   close_out oc\n"
+          }
+        ],
         "opam": {
           "name": "menhir",
-          "version": "20170509",
+          "version": "20170712",
           "opam":
-            "opam-version: \"1.2\"\nname: \"menhir\"\nversion: \"20170509\"\nmaintainer: \"francois.pottier@inria.fr\"\nauthors: [\n  \"François Pottier <francois.pottier@inria.fr>\"\n  \"Yann Régis-Gianas <yrg@pps.univ-paris-diderot.fr>\"\n]\nhomepage: \"http://gallium.inria.fr/~fpottier/menhir/\"\nbug-reports: \"menhir@inria.fr\"\ndepends: [\n  \"ocamlfind\"\n  \"ocamlbuild\" {build}\n]\navailable: ocaml-version >= \"4.02\"\nbuild: [\n  make\n  \"-f\"\n  \"Makefile\"\n  \"PREFIX=%{prefix}%\"\n  \"USE_OCAMLFIND=true\"\n  \"docdir=%{doc}%/menhir\"\n  \"libdir=%{lib}%/menhir\"\n  \"mandir=%{man}%/man1\"\n]\ninstall: [\n  make\n  \"-f\"\n  \"Makefile\"\n  \"install\"\n  \"PREFIX=%{prefix}%\"\n  \"docdir=%{doc}%/menhir\"\n  \"libdir=%{lib}%/menhir\"\n  \"mandir=%{man}%/man1\"\n]\nremove: [\n  make\n  \"-f\"\n  \"Makefile\"\n  \"uninstall\"\n  \"PREFIX=%{prefix}%\"\n  \"docdir=%{doc}%/menhir\"\n  \"libdir=%{lib}%/menhir\"\n  \"mandir=%{man}%/man1\"\n]\ndev-repo: \"git+https://gitlab.inria.fr/fpottier/menhir.git\"",
-          "override": null
+            "opam-version: \"1.2\"\nname: \"menhir\"\nversion: \"20170712\"\nmaintainer: \"francois.pottier@inria.fr\"\nauthors: [\n  \"François Pottier <francois.pottier@inria.fr>\"\n  \"Yann Régis-Gianas <yrg@pps.univ-paris-diderot.fr>\"\n]\nhomepage: \"http://gallium.inria.fr/~fpottier/menhir/\"\nbug-reports: \"menhir@inria.fr\"\ndepends: [\n  \"ocamlfind\"\n  \"ocamlbuild\" {build}\n]\navailable: ocaml-version >= \"4.02\"\nbuild: [\n  make\n  \"-f\"\n  \"Makefile\"\n  \"PREFIX=%{prefix}%\"\n  \"USE_OCAMLFIND=true\"\n  \"docdir=%{doc}%/menhir\"\n  \"libdir=%{lib}%/menhir\"\n  \"mandir=%{man}%/man1\"\n]\ninstall: [\n  make\n  \"-f\"\n  \"Makefile\"\n  \"install\"\n  \"PREFIX=%{prefix}%\"\n  \"docdir=%{doc}%/menhir\"\n  \"libdir=%{lib}%/menhir\"\n  \"mandir=%{man}%/man1\"\n]\nremove: [\n  make\n  \"-f\"\n  \"Makefile\"\n  \"uninstall\"\n  \"PREFIX=%{prefix}%\"\n  \"docdir=%{doc}%/menhir\"\n  \"libdir=%{lib}%/menhir\"\n  \"mandir=%{man}%/man1\"\n]\ndev-repo: \"git+https://gitlab.inria.fr/fpottier/menhir.git\"",
+          "override": {
+            "build": [
+              [
+                "bash", "-c",
+                "#{os == 'windows' ? 'patch -p1 < _esy/menhir-20170712.patch' : 'true'}"
+              ],
+              [
+                "make", "-f", "Makefile", "PREFIX=#{self.install}",
+                "USE_OCAMLFIND=true", "docdir=#{self.doc}/menhir",
+                "libdir=#{self.lib}/menhir", "mandir=#{self.man}/man1"
+              ]
+            ]
+          }
         }
       },
       "dependencies": [
@@ -1053,7 +1071,7 @@
       },
       "dependencies": [
         "@esy-ocaml/esy-installer@0.0.1", "@esy-ocaml/substs@0.0.1",
-        "@opam/jbuilder@opam:transition", "@opam/menhir@opam:20170509",
+        "@opam/jbuilder@opam:transition", "@opam/menhir@opam:20170712",
         "@opam/merlin-extend@opam:0.3",
         "@opam/ocaml-migrate-parsetree@opam:1.0.11",
         "@opam/ocamlfind@opam:1.8.0", "@opam/result@opam:1.3"

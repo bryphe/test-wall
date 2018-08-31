@@ -4,7 +4,7 @@
   "description": "Reason workflow with Esy",
   "license": "MIT",
   "esy": {
-    "build": "refmterr dune build -p bin/gallery/ReasonWallGallery.exe bin/ui/ReasonWallUi.exe",
+    "build": "refmterr dune build --profile release",
     "buildsInSource": "_build"
   },
   "dependencies": {
@@ -14,7 +14,8 @@
     "@esy-ocaml/reason": "*",
     "refmterr": "*",
     "ocaml": "~4.6.0",
-    "@opam/wall": "let-def/wall#8b47b5ce898f6b35d6cbf92aa12baadd52f05350"
+    "@opam/wall": "let-def/wall#8b47b5ce898f6b35d6cbf92aa12baadd52f05350",
+    "@opam/menhir": "20170712"
   },
   "resolutions": {
     "@esy-ocaml/esy-installer": "0.0.1"
